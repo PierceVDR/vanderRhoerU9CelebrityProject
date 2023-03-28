@@ -102,11 +102,11 @@ public class StartPanel extends JPanel implements ActionListener {
     panelLayout = new SpringLayout();
     typeGroup = new ButtonGroup();
     celebrityRadio = new JRadioButton("Celebrity");
-    celebrityClue = "AAA Enter the clue for the celebrity";
+    celebrityClue = "Enter the clue for the celebrity";
     clueLabel = new JLabel(celebrityClue);
 
-    answerField = new JTextField("BBB Type celebrity here (4 letters min)");
-    clueField = new JTextField("CCC Enter celebrity clue here (10 letters min)");
+    answerField = new JTextField("Type celebrity here (4 letters min)");
+    clueField = new JTextField("Enter celebrity clue here (10 letters min)");
     addCelebrityButton = new JButton("Add current celebrity");
     startButton = new JButton("Start Celebrity game");
     celebrityCount = 0;
@@ -175,6 +175,7 @@ public class StartPanel extends JPanel implements ActionListener {
    */
   private void setupListeners() {
     addCelebrityButton.addActionListener(this);
+    startButton.addActionListener(this);
   }
 
 
@@ -220,15 +221,19 @@ public class StartPanel extends JPanel implements ActionListener {
   }
 
   public void actionPerformed(ActionEvent ae) {
-    // when "add celebrity" button gets clicked:
-    answerField.setBackground(Color.WHITE);
-    clueField.setBackground(Color.WHITE);
-    if (validate(answerField.getText(), clueField.getText())) {
-      addToGame();
-    } else {
-      invalidInput();
+    if (ae.getSource()==addCelebrityButton) {
+      // when "add celebrity" button gets clicked:
+      answerField.setBackground(Color.WHITE);
+      clueField.setBackground(Color.WHITE);
+      if (validate(answerField.getText(), clueField.getText())) {
+        addToGame();
+      } else {
+        invalidInput();
+      }
+      celebrityCount = controller.getCelebrityGameSize();
+      celebrityCountLabel.setText(countLabelText + celebrityCount);
+    } else if (ae.getSource()==startButton) {
+      controller.play();
     }
-    celebrityCount = controller.getCelebrityGameSize();
-    celebrityCountLabel.setText(countLabelText + celebrityCount);
   }
 }
