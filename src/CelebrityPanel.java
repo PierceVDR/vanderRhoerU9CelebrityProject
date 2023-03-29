@@ -11,7 +11,7 @@ import java.awt.event.ActionEvent;
  * @version 2.9 18/09/2018 Adjusted the listener functionality.
  */
 public class CelebrityPanel extends JPanel implements ActionListener {
-  
+  private final int STARTING_SECONDS = 16;
   /**
    * The button pressed when making a guess.
    */
@@ -104,12 +104,13 @@ public class CelebrityPanel extends JPanel implements ActionListener {
     dynamicTimerLabel = new JLabel("60");
     guessButton = new JButton("Submit guess");
     resetButton = new JButton("Start again");
-    clueArea = new JTextArea("", 30, 20);
+    clueArea = new JTextArea("", STARTING_SECONDS, 20);
     cluePane = new JScrollPane(clueArea);
     guessField = new JTextField("Enter guess here", 30);
     success = "You guessed correctly!!! \nNext Celebrity clue is: ";
     tryAgain = "You have chosen poorly, try again!\nThe clue is: ";
-    seconds = 60;
+    seconds = STARTING_SECONDS;
+    countdownTimer = new Timer(1000,null);
 
     setupPanel();
     setupLayout();
@@ -179,6 +180,7 @@ public class CelebrityPanel extends JPanel implements ActionListener {
    */
   private void setupListeners() {
     guessButton.addActionListener(this);
+    countdownTimer.addActionListener(this);
   }
   
   /**
@@ -187,7 +189,17 @@ public class CelebrityPanel extends JPanel implements ActionListener {
    * the end.
    */
   private void timerFires() {
-
+    System.out.println(seconds);
+    if (seconds!=0) {
+      seconds--;
+      dynamicTimerLabel.setText(String.valueOf(seconds));
+    } else {
+      countdownTimer.stop();
+      staticTimerLabel.setText("Time's up! YOU LOSE!");
+      dynamicTimerLabel.setText("");
+      guessButton.setEnabled(false);
+      guessField.setEnabled(false);
+    }
   }
   
   /**
@@ -197,6 +209,7 @@ public class CelebrityPanel extends JPanel implements ActionListener {
    *            The clue to add to the screen.
    */
   public void addClue(String clue) {
+    countdownTimer.start();
     clueArea.setText("The clue is: " + clue);
   }
   
@@ -211,12 +224,19 @@ public class CelebrityPanel extends JPanel implements ActionListener {
     if (result) {
       clueArea.setBackground(Color.CYAN);
       clueArea.append("\n" + success + controller.sendClue());
+
+//      countdownTimer.restart();
+//      seconds=STARTING_SECONDS;
     } else {
       clueArea.setBackground(Color.WHITE);
       clueArea.append("\n" + tryAgain + controller.sendClue());
     }
     if (controller.getCelebrityGameSize()==0) {
       clueArea.append("\nNo more celebrities to guess.");
+
+      countdownTimer.stop();
+      staticTimerLabel.setText("YOU WIN!");
+      dynamicTimerLabel.setText("");
       guessButton.setEnabled(false);
       guessField.setEnabled(false);
     }
@@ -226,8 +246,8 @@ public class CelebrityPanel extends JPanel implements ActionListener {
     Object source = ae.getSource();
     if (source==guessButton) {
       updateScreen();
-
+    } else if (source==countdownTimer) {
+      timerFires();
     }
-
   }
 }
